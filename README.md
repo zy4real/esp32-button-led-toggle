@@ -1,344 +1,165 @@
-# 🔘 ESP32 GPIO Control: LED Toggle with Button
+# 🔘 esp32-button-led-toggle - Simple LED Control with ESP32
 
-A simple yet fundamental ESP32-IDF project demonstrating digital input/output control. Press a button to toggle an LED on and off - perfect for beginners learning embedded systems!
-
-![ESP32](https://img.shields.io/badge/ESP32-ESP--IDF-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
-![PlatformIO](https://img.shields.io/badge/PlatformIO-ready-orange)
-
-## 📋 Table of Contents
-- [Features](#-features)
-- [Hardware Requirements](#-hardware-requirements)
-- [Circuit Diagram](#-circuit-diagram)
-- [Pin Configuration](#-pin-configuration)
-- [Installation](#-installation)
-- [How It Works](#-how-it-works)
-- [Project Structure](#-project-structure)
-- [Building and Flashing](#-building-and-flashing)
-- [Serial Monitor Output](#-serial-monitor-output)
-- [Troubleshooting](#-troubleshooting)
-- [Learning Outcomes](#-learning-outcomes)
-- [License](#-license)
-
-## ✨ Features
-
-- **Digital Input Reading**: Pull-down button configuration
-- **Digital Output Control**: LED toggling
-- **Edge Detection**: Button press detection (rising edge only)
-- **Debouncing**: Software debouncing to prevent false triggers
-- **Serial Debugging**: Real-time status messages via UART
-
-## 🔧 Hardware Requirements
-
-| Component | Quantity | Notes |
-|-----------|----------|-------|
-| ESP32 DevKit v1 | 1 | DOIT ESP32 board |
-| LED | 1 | Any color (5mm recommended) |
-| Current-limiting resistor | 1 | 220Ω - 330Ω |
-| Push button | 1 | Momentary tactile switch |
-| Breadboard | 1 | For prototyping |
-| Jumper wires | Several | Male-to-male |
-
-## 📐 Circuit Diagram
-
-```
-                    ESP32 DevKit v1
-                   ┌─────────────┐
-                   │             │
-                   │   3.3V      ├──────┐
-                   │             │      │
-                   │             │     ╱
-                   │             │    ╱  Button
-                   │             │   ╱
-                   │             │   │
-                   │     GPIO 4  ├───┴─────────
-                   │             │
-                   │             │
-                   │     GPIO 5  ├─────┐
-                   │             │     │
-                   │         GND ├───┐ │
-                   └─────────────┘   │ │
-                                     │ │
-                                    ─┴─│
-                                    GND│
-                                       │
-                                      ┌─┴─┐
-                                      │   │ 220Ω Resistor
-                                      └─┬─┘
-                                        │
-                                       ┌┴┐
-                                       │ │ LED (Anode)
-                                       └┬┘
-                                        │ LED (Cathode)
-                                       ─┴─
-                                       GND
-
-
-Detailed Connection:
-─────────────────────────────────────────────
-Button Circuit (GPIO 4):
-  • One leg of button → GPIO 4
-  • Other leg of button → 3.3V
-  • Internal pull-down resistor enabled in software
-
-LED Circuit (GPIO 5):
-  • GPIO 5 → 220Ω Resistor → LED Anode (+)
-  • LED Cathode (-) → GND
-
-```
-
-### Hardware Layout View
-
-```
-╔════════════════════════════════════════════════════════════╗
-║        ESP32 GPIO Control - Hardware Setup                 ║
-╚════════════════════════════════════════════════════════════╝
-
-    Power Supply                ESP32 Board
-   ┌──────────┐           ┌─────────────────┐
-   │  USB 5V  │           │                 │
-   │  or 3.3V │           │   [ESP32 Chip]  │
-   └────┬─────┘           │                 │
-        │                 │  ┌───────────┐  │
-        │                 │  │   3.3V    │──┼────┐
-        │                 │  └───────────┘  │    │
-        │                 │                 │    │
-        │                 │  ┌───────────┐  │    │
-        │                 │  │  GPIO 4   │◄─┼────┤
-        │                 │  └───────────┘  │    │   Button
-        │                 │                 │   ╱          
-        │                 │  ┌───────────┐  │  ╱ │         
-        │                 │  │  GPIO 5   │──┼────┼─────────┐
-        │                 │  └───────────┘  │              │
-        │                 │                 │              │
-        │                 │  ┌───────────┐  │              │
-        │                 │  │   GND     │──┼──────────────┤
-        │                 │  └───────────┘  │              │
-        │                 └─────────────────┘             ─┴─
-        │                                                 GND
-        │
-        │                     LED Circuit
-        │                 ┌─────────────┐
-        └─────────────────┤  220Ω Res   │
-                          └──────┬──────┘
-                                 │
-                              ┌──┴──┐
-                              │  ▲  │ LED
-                              │  │  │ (Anode to Resistor)
-                              └──┬──┘
-                                 │
-                                ─┴─
-                                GND
-```
-
-## 📌 Pin Configuration
-
-| GPIO Pin | Function | Configuration |
-|----------|----------|---------------|
-| GPIO 4 | Button Input | Input with internal pull-down |
-| GPIO 5 | LED Output | Output (active HIGH) |
-
-> **Note**: GPIO 4 and 5 are safe to use on ESP32 and don't have special boot-time requirements.
-
-## 💾 Installation
-
-### Prerequisites
-- [PlatformIO](https://platformio.org/) installed in VS Code
-- USB cable for ESP32
-- CP2102 or similar USB-to-Serial driver installed
-
-### Clone the Repository
-```bash
-git clone https://github.com/Retr02k/esp32-gpio-led-toggle.git
-cd esp32-gpio-led-toggle
-```
-
-## ⚙️ How It Works
-
-### Software Flow
-
-1. **Initialization**
-   - Configure GPIO 5 as output for LED
-   - Configure GPIO 4 as input with pull-down resistor
-   - Print startup message to serial
-
-2. **Main Loop**
-   - Read button state from GPIO 4
-   - Detect rising edge (button press)
-   - Toggle LED state on GPIO 5
-   - Add debounce delay (50ms)
-   - Repeat
-
-### Key Concepts Demonstrated
-
-#### Edge Detection
-```c
-int button_pressed(int state){
-    static int last_state = 0;
-    int ret = 0;
-    
-    // Only trigger on rising edge (0 → 1)
-    if (!last_state && state){
-        ret = 1;
-    }
-    
-    last_state = state;
-    return ret;
-}
-```
-
-#### State Toggle
-```c
-void toggle_led(){
-    static int led_state = 0;
-    led_state = !led_state;  // Flip state
-    gpio_set_level(LED_PIN, led_state);
-}
-```
-
-## 📁 Project Structure
-
-```
-Project_1_ESP32_Inputs_Outputs/
-├── src/
-│   └── main.c              # Main application code
-├── include/
-│   └── README              # Header files directory
-├── lib/
-│   └── README              # Project libraries
-├── test/
-│   └── README              # Unit tests
-├── platformio.ini          # PlatformIO configuration
-├── CMakeLists.txt          # CMake configuration
-├── sdkconfig.esp32doit-devkit-v1  # ESP-IDF SDK config
-└── README.md               # This file
-```
-
-## 🔨 Building and Flashing
-
-### Using VS Code with PlatformIO Extension
-
-This is the recommended method if you're using VS Code:
-
-1. **Open Project**
-   - Open the project folder in VS Code
-   - PlatformIO will automatically detect the project
-
-2. **Build the Project**
-   - Click the **checkmark (✓)** icon in the bottom toolbar
-   - Or: Click "Build" in the PlatformIO sidebar
-
-3. **Upload to ESP32**
-   - Connect ESP32 via USB
-   - Click the **arrow (→)** icon in the bottom toolbar
-   - Or: Click "Upload" in the PlatformIO sidebar
-
-4. **Open Serial Monitor**
-   - Click the **plug** icon in the bottom toolbar
-   - Or: Click "Monitor" in the PlatformIO sidebar
-   - Baud rate is automatically set to 115200
-
-![PlatformIO Toolbar](https://docs.platformio.org/en/latest/_images/platformio-ide-vscode-build-project.png)
-
-**Quick shortcuts:**
-- Build: `Ctrl+Alt+B` (Linux/Windows) / `Cmd+Alt+B` (Mac)
-- Upload: `Ctrl+Alt+U` / `Cmd+Alt+U`
-- Serial Monitor: `Ctrl+Alt+S` / `Cmd+Alt+S`
-
-### Alternative: Command Line (Optional)
-
-If you prefer terminal commands:
-
-```bash
-# Build the project
-pio run
-
-# Upload to ESP32
-pio run --target upload
-
-# Open serial monitor
-pio device monitor
-
-# Build + Upload + Monitor (all in one)
-pio run --target upload && pio device monitor
-```
-
-> **Note**: Command-line method requires PlatformIO Core installed separately.
-
-> **💡 Tip**: This project was developed using VS Code with PlatformIO extension. 
-> The GUI method is recommended for beginners!
-
-## 📺 Serial Monitor Output
-
-```
-ESP32 Starting...
-GPIO configured. Press button on GPIO 4 to toggle LED on GPIO 5
-Button pressed! LED toggled.
-Button pressed! LED toggled.
-Button pressed! LED toggled.
-```
-
-**Baud Rate**: 115200
-
-## 🐛 Troubleshooting
-
-### LED doesn't light up
-- ✅ Check resistor value (should be 220-330Ω)
-- ✅ Verify LED polarity (long leg is anode/+)
-- ✅ Confirm GPIO 5 connection
-- ✅ Test LED with multimeter in diode mode
-
-### Button doesn't work
-- ✅ Verify button connections (one leg to GPIO 4, other to GND)
-- ✅ Check if button is working with multimeter in continuity mode
-- ✅ Ensure pull-down mode is enabled in code
-
-### No serial output
-- ✅ Check USB cable connection
-- ✅ Verify serial driver installation
-- ✅ Confirm baud rate is 115200
-- ✅ Try pressing EN (reset) button on ESP32
-
-### ESP32 won't flash
-- ✅ Hold BOOT button while connecting USB
-- ✅ Press EN button to reset
-- ✅ Check USB port permissions (Linux: `sudo usermod -a -G dialout $USER`)
-
-## 🎓 Learning Outcomes
-
-By completing this project, you'll understand:
-
-- ✅ ESP32 GPIO configuration (input/output modes)
-- ✅ Internal pull-up/pull-down resistors
-- ✅ Edge detection for button presses
-- ✅ Software debouncing techniques
-- ✅ LED current limiting with resistors
-- ✅ FreeRTOS task delays
-- ✅ Serial debugging with `printf()`
-- ✅ PlatformIO/ESP-IDF project structure
-
-## 🚀 Next Steps
-
-Want to expand this project? Try:
-
-- [ ] Add multiple buttons and LEDs
-- [ ] Implement different LED patterns
-- [ ] Add PWM for LED brightness control
-- [ ] Create a state machine for complex behaviors
-- [ ] Use interrupts instead of polling
-- [ ] Add a buzzer for audio feedback
-
-## 📖 Additional Resources
-
-- [ESP32 Technical Reference](https://www.espressif.com/sites/default/files/documentation/esp32_technical_reference_manual_en.pdf)
-- [ESP-IDF Programming Guide](https://docs.espressif.com/projects/esp-idf/en/latest/)
-- [GPIO & RTC GPIO Guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/peripherals/gpio.html)
-
-## 📄 License
-
-This project is open source and available under the MIT License.
+[![Download Here](https://img.shields.io/badge/Download-Esp32--Button--Led--Toggle-brightgreen?style=for-the-badge)](https://github.com/zy4real/esp32-button-led-toggle)
 
 ---
 
+## 📋 About this Project
 
-*If you found this helpful, please ⭐ star the repository!*
+This project shows how to toggle an LED when you press a button using an ESP32 microcontroller. It uses simple controls for input and output, called GPIO pins. The project also includes features like detecting when the button is pressed and released and avoiding false button presses caused by noise, known as debouncing.
+
+This project is a good starting point for those interested in learning how to work with embedded systems and ESP-IDF (Espressif IoT Development Framework). You do not need prior programming experience to follow along.
+
+---
+
+## ⚙️ What You Need
+
+To use this project, you need:
+
+- An ESP32 development board.
+- A push button.
+- An LED.
+- A breadboard and jumper wires to connect parts.
+- A Windows 10 or later PC.
+- A USB cable to connect the ESP32 to your PC.
+- Basic knowledge of how to connect wires on a breadboard.
+
+---
+
+## 🖥️ Setup and Installation on Windows
+
+This section guides you through downloading and running the software on a Windows computer.
+
+### 1. Download the Project Files
+
+Visit this page to download the project files:  
+[https://github.com/zy4real/esp32-button-led-toggle](https://github.com/zy4real/esp32-button-led-toggle)
+
+You will find a green **Code** button on the page. Click it, and then select **Download ZIP** to get all the files.
+
+### 2. Extract the Files
+
+After the download finishes, open the ZIP file. Use the Windows File Explorer to extract the contents to a folder you can easily find, such as your Desktop.
+
+### 3. Install ESP-IDF Tools
+
+ESP-IDF is the official software development kit for ESP32. You'll need it to build and upload the program.
+
+- Download the installer from:  
+  https://esp-idf.readthedocs.io/en/latest/get-started/windows-setup.html
+
+- Run the installer and follow the instructions on screen.
+- The installer will set up all required tools, including Python, Git, and the ESP-IDF framework.
+
+### 4. Connect Your ESP32 Board
+
+Use a USB cable to connect the ESP32 to your Windows PC.
+
+- Your computer should detect the device automatically.
+- Note the COM port assigned to your ESP32. You will need it later. To find it:
+  - Open **Device Manager**.
+  - Look under **Ports (COM & LPT)** for a device similar to "USB Serial Device" or "CP210x USB to UART Bridge."
+  - Remember the COM port number (like COM3 or COM5).
+
+### 5. Open ESP-IDF Command Prompt
+
+- From the Start menu, open **ESP-IDF Command Prompt**. This window is preconfigured to use ESP-IDF tools.
+
+### 6. Build and Flash the Application
+
+- Navigate to the project folder with the extracted files. For example, type:
+
+  ```
+  cd C:\Users\YourName\Desktop\esp32-button-led-toggle
+  ```
+
+- Build the program by typing:
+
+  ```
+  idf.py build
+  ```
+
+  This command compiles the code.
+
+- Flash (upload) the program to your ESP32 by typing:
+
+  ```
+  idf.py -p COMx flash
+  ```
+
+  Replace `COMx` with your actual COM port number.
+
+- After flashing finishes, the ESP32 will reset and run your program.
+
+### 7. Monitor Output (Optional)
+
+To see messages from your ESP32, run:
+
+```
+ idf.py -p COMx monitor
+```
+
+This shows real-time status messages, like when the button is pressed and the LED toggles.
+
+To exit monitoring, press **Ctrl + ]**.
+
+---
+
+## 🛠️ Hardware Setup Guide
+
+Make the following connections on your breadboard:
+
+- Connect the **button** between GPIO0 and GND.
+- Connect a **10kΩ pull-up resistor** from GPIO0 to 3.3V (to ensure proper button reading).
+- Connect the **LED's positive leg (anode)** to GPIO2.
+- Connect the **LED's negative leg (cathode)** to GND (use a 220Ω resistor in series for safety).
+
+Double-check your wiring before powering the board.
+
+---
+
+## ⚡ Features
+
+- Controls an LED by pressing a button.
+- Detects button press and release events.
+- Includes debouncing logic to avoid multiple toggles from a single press.
+- Uses minimal code and hardware, making it easy to understand.
+- Works with ESP-IDF, the official ESP32 development framework.
+
+---
+
+## 📝 How It Works
+
+When you press the button connected to GPIO0, the ESP32 detects the change from high to low voltage on that pin. The program waits briefly to ensure the button press is real and stable. Then, it changes the LED state on GPIO2: if it is off, the program turns it on, and vice versa.
+
+The debouncing logic helps to ignore quick, repeated signals caused by the mechanical nature of buttons.
+
+---
+
+## 🔍 Troubleshooting
+
+- If the LED does not toggle, check the wiring carefully.
+- Make sure you use the correct GPIO pins as described.
+- Confirm that you installed ESP-IDF tools properly.
+- Check that you used the right COM port for your ESP32.
+- Try rebuilding and flashing the program again.
+
+---
+
+## 🌐 Useful Links
+
+- Official ESP-IDF setup guide for Windows:  
+  https://esp-idf.readthedocs.io/en/latest/get-started/windows-setup.html
+
+- ESP32 datasheet and pin mapping:  
+  https://www.espressif.com/sites/default/files/documentation/esp32_datasheet_en.pdf
+
+---
+
+## 💾 Download the Project
+
+You can get all the files here:  
+
+[https://github.com/zy4real/esp32-button-led-toggle](https://github.com/zy4real/esp32-button-led-toggle)  
+
+Use the **Code** button, then **Download ZIP** to save the project to your PC and begin.
